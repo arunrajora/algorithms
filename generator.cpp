@@ -42,7 +42,7 @@ void dumpFileContents(string dirName, string fileName){
 			outFile<<contents<<endl;
 		}
 		
-		outFile<<"// __________________________"<<endl<<endl;
+		outFile<<"// __________________________"<<endl<<endl<<endl<<endl;
 	}
 	else{
 		errorNumber++;
