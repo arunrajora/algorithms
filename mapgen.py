@@ -10,9 +10,9 @@ for path, subdirs, files in os.walk(root):
 		print "\t\tadding directory : "+dir
 		mapperFile.write(dir+"\n");
 	for file in files:
-		if(file!="mapper.txt"):
+		if(file=="mapper.txt" or file.endswith(".exe") or file.endswith(".out")):
+			print "\t\tskipping mapper file."			
+		else:
 			print "\t\tadding file : "+file
 			mapperFile.write(file+"\n");
-		else:
-			print "\t\tskipping mapper file."
 	mapperFile.close();
