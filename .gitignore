@@ -27,3 +27,6 @@
 *.exe
 *.out
 *.app
+
+#map files
+mapper.txt
