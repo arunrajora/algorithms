@@ -62,7 +62,7 @@ void recurseProcessDirectory(string dirName){
 			cout<<"Processing directory("<<(++dirNumber)<<"): "<<dirName<<endl;
 			string entityName;
 			while(!dirMapper.eof()){
-			   dirMapper>>entityName;
+			   getline(dirMapper,entityName);
 			   if(entityName.length()<=0) continue;
 			   
 			   if(entityName.find(".")>=0 && entityName.find(".")<entityName.length()){
