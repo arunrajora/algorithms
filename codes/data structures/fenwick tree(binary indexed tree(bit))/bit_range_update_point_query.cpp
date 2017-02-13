@@ -19,7 +19,7 @@ void update(int p,int v){
 	 }	
 }
 
-int update(int a,int b,int v){
+void update(int a,int b,int v){
 	update(a,v);
 	update(b+1,-v);
 }
