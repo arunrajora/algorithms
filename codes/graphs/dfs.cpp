@@ -5,16 +5,14 @@
 #include<vector>
 using namespace std;
 
-enum status{unvisited,visited};
-
 #define N 100005
 vector<int> graph[N];
-status vis[N];
+bool vis[N];
 
 void rdfs(int u){
 	cout<<" at "<<u<<endl;
 	
-	vis[u]=visited;
+	vis[u]=true;
 	for(int j=0;j<graph[u].size();j++){
 		int v=graph[u][j];
 		if(!vis[v]){
