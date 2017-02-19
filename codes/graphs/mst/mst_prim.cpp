@@ -1,37 +1,49 @@
 
-// Dynamic programming ( largest sum contiguous subarray / maximum subarray problem )
-// Kadane's algorithm
+// minimum spanning tree (mst) prim
 
 #include<iostream>
+#include<vector>
+#include<queue>
+#include<algorithm>
 using namespace std;
 
-void kadane(int arr[],int N){
-	int max_end=0;
-	int dp[N];
-	for(int i=0;i<N;i++){
-		max_end+=arr[i];
-		if(max_end<0) max_end=0;
-		dp[i]=max_end;
-//		cout<<dp[i]<<" ";
-	}
-//	cout<<endl;
-}
+#define N 100005
+//item->weight,node
+vector<pair<int,int> > graph[N];
 
-void kadane_empty_set_not_allowed(int arr[],int N){
-	int max_end=0;
-	int dp[N];
-	for(int i=0;i<N;i++){
-		max_end+=arr[i];
-		dp[i]=max_end;
-		if(max_end<0) max_end=0;
-//		cout<<dp[i]<<" ";
+int mst(int n){
+	vector<int> taken;
+	priority_queue<pair<int,int> > pq;
+	taken.assign(n,0);
+	pq.push(make_pair(0,0));
+	int mst_cost=0;
+	while(!pq.empty()){
+		pair<int,int> front=pq.top();
+		pq.pop();
+		int u=-front.second,w=-front.first;
+		if(!taken[u]){
+			mst_cost+=w;
+			taken[u]=1;
+			for(int j=0;j<graph[u].size();j++){
+				if(!taken[graph[u][j].second]) {
+					pq.push(make_pair(-graph[u][j].first,-graph[u][j].second));
+				}
+			}
+		}
 	}
-//	cout<<endl;
+	return mst_cost;
 }
 
 int main(){
-	int arr[]={-1,-2,-3,-4,-1,-2,-3};
-	int N=7;
-	kadane(arr,N);
-	kadane_empty_set_not_allowed(arr,N);
+	graph[0].push_back(make_pair(10,1));
+	graph[1].push_back(make_pair(10,0));
+	graph[1].push_back(make_pair(10,2));
+	graph[1].push_back(make_pair(10,4));
+	graph[2].push_back(make_pair(10,1));
+	graph[2].push_back(make_pair(10,3));
+	graph[3].push_back(make_pair(10,2));
+	graph[4].push_back(make_pair(10,1));
+	graph[5].push_back(make_pair(10,6));
+	graph[6].push_back(make_pair(10,5));
+	cout<<mst(7);
 }
