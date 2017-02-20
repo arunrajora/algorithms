@@ -863,8 +863,8 @@ int main() {
 using namespace std;
 
 vector<int> p,rankArr;
-
-void initialize(int N) { rankArr.assign(N,0);p.assign(N,0); for(int i=0;i<N;i++) p[i]=i; }
+int countSets;
+void initialize(int N) { countSets=N;rankArr.assign(N,0);p.assign(N,0); for(int i=0;i<N;i++) p[i]=i; }
 
 int findSet(int i){ return p[i]==i?i:(p[i]=findSet(p[i])); }
 
@@ -872,6 +872,7 @@ bool isSameSet(int i,int j){ return findSet(i)==findSet(j); }
 
 void unionSet(int i,int j){
 	if(!isSameSet(i,j)){
+		countSets--;
 		int x=findSet(i),y=findSet(j);
 		if(rankArr[x]>rankArr[y]) p[y]=x;
 		else{
@@ -888,7 +889,7 @@ int main(){
 	unionSet(1,2);
 	cout<<findSet(1)<<" "<<findSet(2)<<endl;
 	cout<<isSameSet(1,2)<<endl;
-	
+	cout<<countSets<<endl;
 	return 0;
 }
 
@@ -917,6 +918,111 @@ string dayFromDate(int d,int m,int y){
 int main(){
 	cout<<dayFromDate(5,2,2017);//sunday
 	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\graphs\all_pair_shortest_path\floyd_warshall.cpp
+
+//all pair shortest path
+// floyd warshall
+
+#include<iostream>
+#include<vector>
+#include<queue>
+#include<algorithm>
+using namespace std;
+
+#define N 1005
+#define inf 100000000
+
+int graph[N][N];
+int wt[N][N];
+int dp[N][N];
+int parent[N][N];
+
+cleardp(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) dp[i][j]=val;}
+cleargraph(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) graph[i][j]=val;}
+clearwt(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) wt[i][j]=val;}
+clearparent(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) parent[i][j]=val;}
+
+void apsp(int n){
+	 cleardp(n,n,inf);
+	 clearparent(n,n,-1);
+	 for(int i=0;i<n;i++){
+	 	for(int j=0;j<n;j++){
+	 		if(graph[i][j]){
+	 			dp[i][j]=wt[i][j];
+	 				parent[i][j]=i;
+			 }
+			 else if(i==j){
+			 	dp[i][j]=0;
+			 	parent[i][j]=i;
+			 }
+		 }
+	 }
+	for(int k=0;k<n;k++){
+		for(int i=0;i<n;i++){
+			for(int j=0;j<n;j++){
+				if(dp[i][k]+dp[k][j]<dp[i][j]){
+					dp[i][j]=dp[i][k]+dp[k][j];
+					parent[i][j]=parent[k][j];
+				}
+			}
+		}
+	}
+}
+
+void path(int i,int j){
+	if(i==j){
+		cout<<"goto "<<i<<endl;
+	}
+	else if(parent[i][j]==-1){
+		cout<<"No path"<<endl;
+	}
+	else{
+		path(i,parent[i][j]);
+		cout<<"goto "<<j<<endl;
+	}
+}
+
+int main(){
+	cleargraph(7,7,0);
+	clearwt(7,7,0);
+	graph[0][1]=1;
+	graph[1][0]=1;
+	graph[1][2]=1;
+	graph[1][4]=1;
+	graph[2][1]=1;
+	graph[2][3]=1;
+	graph[3][2]=1;
+	graph[4][1]=1;
+	graph[5][6]=1;
+	graph[6][5]=1;
+	
+	wt[0][1]=10;
+	wt[1][0]=10;
+	wt[1][2]=10;
+	wt[1][4]=10;
+	wt[2][1]=10;
+	wt[2][3]=10;
+	wt[3][2]=10;
+	wt[4][1]=10;
+	wt[5][6]=10;
+	wt[6][5]=10;
+
+	apsp(7);
+	for(int i=0;i<7;i++){
+		for(int j=0;j<7;j++){
+			cout<<dp[i][j]<<","<<parent[i][j]<<" ";
+		}
+		cout<<endl;
+	}
+	path(0,4);
 }
 
 // __________________________
@@ -1182,6 +1288,72 @@ int main(){
 
 // __________________________
 
+// .\codes\graphs\misc\detect_negative_cycles.cpp
+
+// single sorurce shortest path(sssp) dijkstra
+
+#include<iostream>
+#include<vector>
+#include<queue>
+#include<algorithm>
+using namespace std;
+
+#define N 100005
+#define inf 100000000
+//item->weight,node
+vector<pair<int,int> > graph[N];
+vector<int> dist;
+
+void bellman_ford(int s,int n){
+	 dist.assign(n,inf);
+	 dist[s]=0;
+	 for(int i=0;i<n-1;i++){
+	 	for(int u=0;u<n;u++){
+	 		for(int j=0;j<graph[u].size();j++){
+	 			int v=graph[u][j].second;
+	 			int d=graph[u][j].first;
+	 			dist[v]=min(dist[v],dist[u]+d);
+			 }
+		 }
+	 }
+}
+
+//return true for negative cycle
+bool isNegCycle(int n){
+	bellman_ford(0,n);
+	bool negCycle=false;
+	for(int u=0;u<n;u++){
+		for(int v=0;v<graph[u].size();v++){
+			if(dist[graph[u][v].second]>dist[u]+graph[u][v].first){
+				negCycle=true;
+				break;
+			}
+		}
+		if(negCycle) break;
+	}
+	return negCycle;
+}
+
+int main(){
+	graph[0].push_back(make_pair(10,1));
+	graph[1].push_back(make_pair(10,0));
+	graph[1].push_back(make_pair(10,2));
+	graph[1].push_back(make_pair(10,4));
+	graph[2].push_back(make_pair(10,1));
+	graph[2].push_back(make_pair(10,3));
+	graph[3].push_back(make_pair(10,2));
+	graph[4].push_back(make_pair(10,1));
+	graph[5].push_back(make_pair(10,6));
+	graph[6].push_back(make_pair(10,5));
+	cout<<(isNegCycle(7)?"Negative Cycles":"No negative cycles");
+}
+
+// __________________________
+
+
+
+// __________________________
+
 // .\codes\graphs\misc\edge_type.cpp
 
 // Type of edge in graph
@@ -1301,6 +1473,68 @@ int main(){
 			cout<<grid[i][j];
 		}cout<<endl;
 	}
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\graphs\mst\minimum_spanning_forest.cpp
+
+// minimum spanning forest kruskal
+
+#include<iostream>
+#include<vector>
+#include<algorithm>
+using namespace std;
+
+vector<pair<int,pair<int,int> > > edges;
+
+vector<int> p,rankArr;
+int countSets;
+void initialize(int N) { countSets=N;rankArr.assign(N,0);p.assign(N,0); for(int i=0;i<N;i++) p[i]=i; }
+
+int findSet(int i){ return p[i]==i?i:(p[i]=findSet(p[i])); }
+
+bool isSameSet(int i,int j){ return findSet(i)==findSet(j); }
+
+void unionSet(int i,int j){
+	if(!isSameSet(i,j)){
+		countSets--;
+		int x=findSet(i),y=findSet(j);
+		if(rankArr[x]>rankArr[y]) p[y]=x;
+		else{
+			p[x]=y;
+			if(rankArr[x]==rankArr[y]) rankArr[y]++;
+		}
+	}
+}
+
+int mst(int forestSize){
+	initialize(edges.size());
+	sort(edges.begin(),edges.end());
+	int mst_cost=0;
+	for(int i=0;i<edges.size() && countSets>forestSize;i++){
+		pair<int,pair<int,int> > front=edges[i];
+		if(!isSameSet(front.second.first,front.second.second)){
+			mst_cost+=front.first;
+			unionSet(front.second.first,front.second.second);
+		}
+	}
+	return mst_cost;
+}
+
+int main(){
+	edges.push_back(make_pair(4,make_pair(1,0)));
+	edges.push_back(make_pair(2,make_pair(1,2)));
+	edges.push_back(make_pair(6,make_pair(0,3)));
+	edges.push_back(make_pair(4,make_pair(0,2)));
+	edges.push_back(make_pair(6,make_pair(0,4)));
+	edges.push_back(make_pair(8,make_pair(2,3)));
+	edges.push_back(make_pair(9,make_pair(3,4)));
+	cout<<mst(2);
 }
 
 // __________________________
