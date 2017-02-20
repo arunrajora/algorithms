@@ -10,33 +10,54 @@ using namespace std;
 
 #define N 1005
 #define inf 100000000
-//item->weight,node
+
 int graph[N][N];
 int wt[N][N];
 int dp[N][N];
+int parent[N][N];
 
 cleardp(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) dp[i][j]=val;}
 cleargraph(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) graph[i][j]=val;}
 clearwt(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) wt[i][j]=val;}
+clearparent(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) parent[i][j]=val;}
 
 void apsp(int n){
 	 cleardp(n,n,inf);
+	 clearparent(n,n,-1);
 	 for(int i=0;i<n;i++){
 	 	for(int j=0;j<n;j++){
 	 		if(graph[i][j]){
 	 			dp[i][j]=wt[i][j];
+	 				parent[i][j]=i;
 			 }
 			 else if(i==j){
 			 	dp[i][j]=0;
+			 	parent[i][j]=i;
 			 }
 		 }
 	 }
 	for(int k=0;k<n;k++){
 		for(int i=0;i<n;i++){
 			for(int j=0;j<n;j++){
-				dp[i][j]=min(dp[i][j],dp[i][k]+dp[k][j]);
+				if(dp[i][k]+dp[k][j]<dp[i][j]){
+					dp[i][j]=dp[i][k]+dp[k][j];
+					parent[i][j]=parent[k][j];
+				}
 			}
 		}
+	}
+}
+
+void path(int i,int j){
+	if(i==j){
+		cout<<"goto "<<i<<endl;
+	}
+	else if(parent[i][j]==-1){
+		cout<<"No path"<<endl;
+	}
+	else{
+		path(i,parent[i][j]);
+		cout<<"goto "<<j<<endl;
 	}
 }
 
@@ -68,8 +89,9 @@ int main(){
 	apsp(7);
 	for(int i=0;i<7;i++){
 		for(int j=0;j<7;j++){
-			cout<<dp[i][j]<<" ";
+			cout<<dp[i][j]<<","<<parent[i][j]<<" ";
 		}
 		cout<<endl;
 	}
+	path(0,4);
 }
