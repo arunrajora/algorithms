@@ -1,5 +1,5 @@
 
-// single sorurce shortest path(sssp) dijkstra
+// detect negative cycles
 
 #include<iostream>
 #include<vector>
