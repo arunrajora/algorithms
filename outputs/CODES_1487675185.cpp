@@ -926,6 +926,360 @@ int main(){
 
 // __________________________
 
+// .\codes\graphs\all_pair_shortest_path\misc\diameter.cpp
+
+//diameter of a graph
+
+#include<iostream>
+#include<vector>
+#include<queue>
+#include<algorithm>
+using namespace std;
+
+#define N 1005
+#define inf 100000000
+
+int graph[N][N];
+int wt[N][N];
+int dp[N][N];
+
+cleardp(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) dp[i][j]=val;}
+cleargraph(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) graph[i][j]=val;}
+clearwt(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) wt[i][j]=val;}
+
+int diameter(int n){
+	cleardp(n,n,inf);
+	for(int i=0;i<n;i++){
+	 	for(int j=0;j<n;j++){
+	 		if(graph[i][j]){
+	 			dp[i][j]=wt[i][j];
+			}
+			 else if(i==j){
+			 	dp[i][j]=0;
+			}
+		}
+ 	}
+	for(int k=0;k<n;k++){
+		for(int i=0;i<n;i++){
+			for(int j=0;j<n;j++){
+				dp[i][j]=min(dp[i][j],dp[i][k]+dp[k][j]);
+			}
+		}
+	}
+	int diam=0;
+	for(int i=0;i<n;i++){
+	 	for(int j=0;j<n;j++){
+	 		if(dp[i][j]!=inf){
+	 			diam=max(diam,dp[i][j]);
+			}
+		}
+	}
+	return diam;
+}
+
+
+
+int main(){
+	cleargraph(7,7,0);
+	clearwt(7,7,0);
+	graph[0][1]=1;
+	graph[1][0]=1;
+	graph[1][2]=1;
+	graph[1][4]=1;
+	graph[2][1]=1;
+	graph[2][3]=1;
+	graph[3][2]=1;
+	graph[4][1]=1;
+	graph[5][6]=1;
+	graph[6][5]=1;
+	
+	wt[0][1]=10;
+	wt[1][0]=10;
+	wt[1][2]=10;
+	wt[1][4]=10;
+	wt[2][1]=10;
+	wt[2][3]=10;
+	wt[3][2]=10;
+	wt[4][1]=10;
+	wt[5][6]=10;
+	wt[6][5]=10;
+
+	cout<<diameter(7);
+
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\graphs\all_pair_shortest_path\misc\minimax.cpp
+
+//minimax
+//minimum maximum weight from all paths from i to j
+
+#include<iostream>
+#include<vector>
+#include<queue>
+#include<algorithm>
+using namespace std;
+
+#define N 1005
+#define inf 100000000
+
+int graph[N][N];
+int wt[N][N];
+int dp[N][N];
+
+cleardp(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) dp[i][j]=val;}
+cleargraph(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) graph[i][j]=val;}
+clearwt(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) wt[i][j]=val;}
+
+void apsp(int n){
+	 cleardp(n,n,inf);
+	 for(int i=0;i<n;i++){
+	 	for(int j=0;j<n;j++){
+	 		if(graph[i][j]){
+	 			dp[i][j]=wt[i][j];
+			 }
+			 else if(i==j){
+			 	dp[i][j]=0;
+			 }
+		 }
+	 }
+	for(int k=0;k<n;k++){
+		for(int i=0;i<n;i++){
+			for(int j=0;j<n;j++){
+				dp[i][j]=min(dp[i][j],max(dp[i][k],dp[k][j]));
+			}
+		}
+	}
+}
+
+
+
+int main(){
+	cleargraph(7,7,0);
+	clearwt(7,7,0);
+	graph[0][1]=1;
+	graph[1][0]=1;
+	graph[1][2]=1;
+	graph[1][4]=1;
+	graph[2][1]=1;
+	graph[2][3]=1;
+	graph[3][2]=1;
+	graph[4][1]=1;
+	graph[5][6]=1;
+	graph[6][5]=1;
+	
+	wt[0][1]=10;
+	wt[1][0]=10;
+	wt[1][2]=10;
+	wt[1][4]=10;
+	wt[2][1]=10;
+	wt[2][3]=10;
+	wt[3][2]=10;
+	wt[4][1]=10;
+	wt[5][6]=10;
+	wt[6][5]=10;
+
+	apsp(7);
+	for(int i=0;i<7;i++){
+		for(int j=0;j<7;j++){
+			cout<<dp[i][j]<<" ";
+		}
+		cout<<endl;
+	}
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\graphs\all_pair_shortest_path\misc\misc.cpp
+
+//detect cycle in a graph
+//detect negative cycle in a graph
+//find cheapest cycle in a graph
+
+#include<iostream>
+#include<vector>
+#include<queue>
+#include<algorithm>
+using namespace std;
+
+#define N 1005
+#define inf 100000000
+
+int graph[N][N];
+int wt[N][N];
+int dp[N][N];
+
+cleardp(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) dp[i][j]=val;}
+cleargraph(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) graph[i][j]=val;}
+clearwt(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) wt[i][j]=val;}
+
+void apsp(int n){
+	 cleardp(n,n,inf);
+	 for(int i=0;i<n;i++){
+	 	for(int j=0;j<n;j++){
+	 		if(graph[i][j]){
+	 			dp[i][j]=wt[i][j];
+			 }
+			 if(i==j){
+			 	//diagonal is set to infinity 
+			 	dp[i][j]=inf;
+			 }
+		 }
+	 }
+	for(int k=0;k<n;k++){
+		for(int i=0;i<n;i++){
+			for(int j=0;j<n;j++){
+				dp[i][j]=min(dp[i][j],dp[i][k]+dp[k][j]);
+			}
+		}
+	}
+}
+
+bool hasCycles(int n){
+	apsp(n);
+	for(int i=0;i<n;i++){
+		if(dp[i][i]!=inf){
+			return true;
+		}
+	}
+	return false;
+}
+
+bool hasNegativeCycles(int n){
+	apsp(n);
+	for(int i=0;i<n;i++){
+		if(dp[i][i]<0){
+			return true;
+		}
+	}
+	return false;
+}
+
+int cheapestCycle(int n){
+	apsp(n);
+	int cheapest_cycle=inf;
+	for(int i=0;i<n;i++){
+		if(dp[i][i]>0){
+			cheapest_cycle=min(cheapest_cycle,dp[i][i]);
+		}
+	}
+	return cheapest_cycle;
+}
+
+
+int main(){
+	cleargraph(7,7,0);
+	clearwt(7,7,0);
+	graph[0][1]=1;
+	graph[1][0]=1;
+	graph[1][2]=1;
+	graph[1][4]=1;
+	graph[2][1]=1;
+	graph[2][3]=1;
+	graph[3][2]=1;
+	graph[4][1]=1;
+	graph[5][6]=1;
+	graph[6][5]=1;
+	
+	wt[0][1]=10;
+	wt[1][0]=10;
+	wt[1][2]=10;
+	wt[1][4]=10;
+	wt[2][1]=10;
+	wt[2][3]=10;
+	wt[3][2]=10;
+	wt[4][1]=10;
+	wt[5][6]=10;
+	wt[6][5]=10;
+
+	cout<<hasCycles(7)<<endl;
+	cout<<hasNegativeCycles(7)<<endl;
+	cout<<cheapestCycle(7)<<endl;
+	
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\graphs\all_pair_shortest_path\misc\transitive_closure.cpp
+
+//transitive closure of a graph
+//detect if two nodes are directly or indirectly connected.
+
+#include<iostream>
+#include<vector>
+#include<queue>
+#include<algorithm>
+using namespace std;
+
+#define N 1005
+#define inf 100000000
+
+int graph[N][N];
+int dp[N][N];
+
+cleardp(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) dp[i][j]=val;}
+cleargraph(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) graph[i][j]=val;}
+
+void tclosure(int n){
+	 cleardp(n,n,0);
+	 for(int i=0;i<n;i++){
+	 	for(int j=0;j<n;j++){
+	 		dp[i][j]=graph[i][j] || i==j;
+		 }
+	 }
+	for(int k=0;k<n;k++){
+		for(int i=0;i<n;i++){
+			for(int j=0;j<n;j++){
+				dp[i][j]|=(dp[i][k]&dp[k][j]);
+			}
+		}
+	}
+}
+
+
+
+int main(){
+	cleargraph(7,7,0);
+	graph[0][1]=1;
+	graph[1][0]=1;
+	graph[1][2]=1;
+	graph[1][4]=1;
+	graph[2][1]=1;
+	graph[2][3]=1;
+	graph[3][2]=1;
+	graph[4][1]=1;
+	graph[5][6]=1;
+	graph[6][5]=1;
+	
+	tclosure(7);
+	
+	for(int i=0;i<7;i++){
+		for(int j=0;j<7;j++){
+			cout<<dp[i][j]<<" ";
+		}
+		cout<<endl;
+	}
+}
+
+// __________________________
+
+
+
+// __________________________
+
 // .\codes\graphs\all_pair_shortest_path\floyd_warshall.cpp
 
 //all pair shortest path
@@ -1288,72 +1642,6 @@ int main(){
 
 // __________________________
 
-// .\codes\graphs\misc\detect_negative_cycles.cpp
-
-// single sorurce shortest path(sssp) dijkstra
-
-#include<iostream>
-#include<vector>
-#include<queue>
-#include<algorithm>
-using namespace std;
-
-#define N 100005
-#define inf 100000000
-//item->weight,node
-vector<pair<int,int> > graph[N];
-vector<int> dist;
-
-void bellman_ford(int s,int n){
-	 dist.assign(n,inf);
-	 dist[s]=0;
-	 for(int i=0;i<n-1;i++){
-	 	for(int u=0;u<n;u++){
-	 		for(int j=0;j<graph[u].size();j++){
-	 			int v=graph[u][j].second;
-	 			int d=graph[u][j].first;
-	 			dist[v]=min(dist[v],dist[u]+d);
-			 }
-		 }
-	 }
-}
-
-//return true for negative cycle
-bool isNegCycle(int n){
-	bellman_ford(0,n);
-	bool negCycle=false;
-	for(int u=0;u<n;u++){
-		for(int v=0;v<graph[u].size();v++){
-			if(dist[graph[u][v].second]>dist[u]+graph[u][v].first){
-				negCycle=true;
-				break;
-			}
-		}
-		if(negCycle) break;
-	}
-	return negCycle;
-}
-
-int main(){
-	graph[0].push_back(make_pair(10,1));
-	graph[1].push_back(make_pair(10,0));
-	graph[1].push_back(make_pair(10,2));
-	graph[1].push_back(make_pair(10,4));
-	graph[2].push_back(make_pair(10,1));
-	graph[2].push_back(make_pair(10,3));
-	graph[3].push_back(make_pair(10,2));
-	graph[4].push_back(make_pair(10,1));
-	graph[5].push_back(make_pair(10,6));
-	graph[6].push_back(make_pair(10,5));
-	cout<<(isNegCycle(7)?"Negative Cycles":"No negative cycles");
-}
-
-// __________________________
-
-
-
-// __________________________
-
 // .\codes\graphs\misc\edge_type.cpp
 
 // Type of edge in graph
@@ -1654,6 +1942,72 @@ int main(){
 	graph[5].push_back(make_pair(10,6));
 	graph[6].push_back(make_pair(10,5));
 	cout<<mst(7);
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\graphs\single_source_shortest_path\misc\detect_negative_cycles.cpp
+
+// detect negative cycles
+
+#include<iostream>
+#include<vector>
+#include<queue>
+#include<algorithm>
+using namespace std;
+
+#define N 100005
+#define inf 100000000
+//item->weight,node
+vector<pair<int,int> > graph[N];
+vector<int> dist;
+
+void bellman_ford(int s,int n){
+	 dist.assign(n,inf);
+	 dist[s]=0;
+	 for(int i=0;i<n-1;i++){
+	 	for(int u=0;u<n;u++){
+	 		for(int j=0;j<graph[u].size();j++){
+	 			int v=graph[u][j].second;
+	 			int d=graph[u][j].first;
+	 			dist[v]=min(dist[v],dist[u]+d);
+			 }
+		 }
+	 }
+}
+
+//return true for negative cycle
+bool isNegCycle(int n){
+	bellman_ford(0,n);
+	bool negCycle=false;
+	for(int u=0;u<n;u++){
+		for(int v=0;v<graph[u].size();v++){
+			if(dist[graph[u][v].second]>dist[u]+graph[u][v].first){
+				negCycle=true;
+				break;
+			}
+		}
+		if(negCycle) break;
+	}
+	return negCycle;
+}
+
+int main(){
+	graph[0].push_back(make_pair(10,1));
+	graph[1].push_back(make_pair(10,0));
+	graph[1].push_back(make_pair(10,2));
+	graph[1].push_back(make_pair(10,4));
+	graph[2].push_back(make_pair(10,1));
+	graph[2].push_back(make_pair(10,3));
+	graph[3].push_back(make_pair(10,2));
+	graph[4].push_back(make_pair(10,1));
+	graph[5].push_back(make_pair(10,6));
+	graph[6].push_back(make_pair(10,5));
+	cout<<(isNegCycle(7)?"Negative Cycles":"No negative cycles");
 }
 
 // __________________________
