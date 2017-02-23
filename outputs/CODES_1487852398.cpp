@@ -1385,6 +1385,79 @@ int main(){
 
 // __________________________
 
+// .\codes\graphs\dag\mcbm\maximum_cardinality_bipartite_matching.cpp
+
+// maximum cardinality bipartite matching
+//o(VE) (not best)(see hopcroft karp)
+
+#include<iostream>
+#include<vector>
+#include<queue>
+#include<algorithm>
+using namespace std;
+
+#define N 100005
+#define inf 100000000
+//item->weight,node
+//0..(n-1)->l (n..m-1)->r 
+vector<int> graph[N];
+vector<int> match,vis;
+
+int augment(int l){
+	if(vis[l]) return 0;
+	vis[l]=1;
+	for(int j=0;j<graph[l].size();j++){
+		int r=graph[l][j];
+		if(match[r]==-1 || augment(match[r])){
+			match[r]=l;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int mcbm(int n,int m){
+	int cardinality=0;
+	match.assign(n+m,-1);
+	for(int l=0;l<n;l++){
+		vis.assign(n,0);
+		cardinality+=augment(l);
+	}
+	return cardinality;
+}
+
+int main(){
+	graph[0].push_back(4);
+	graph[4].push_back(0);
+	graph[1].push_back(4);
+	graph[1].push_back(5);
+	graph[4].push_back(1);
+	graph[5].push_back(1);
+	graph[2].push_back(4);
+	graph[4].push_back(2);
+	graph[3].push_back(4);
+	graph[4].push_back(3);
+
+	cout<<mcbm(4,3)<<endl;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\graphs\dag\notes.txt
+
+FOR DAG-
+MINIMUM VERTEX COVER= MAXIMUM CARDINALITY BIPARTITE MATCHING
+MAXIMIM INDEPENDENT SET=TOTAL EDGES - MAXIMUM CARDINALITY BIPARTITE MATCHING
+// __________________________
+
+
+
+// __________________________
+
 // .\codes\graphs\maximum_flow\edmonds_karp.cpp
 
 // Edmonds Karp
@@ -1961,6 +2034,75 @@ int main(){
 			cout<<grid[i][j];
 		}cout<<endl;
 	}
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\graphs\misc\strongly_connected_graph.cpp
+
+// Strongly Connected Graph
+
+#include<iostream>
+#include<vector>
+using namespace std;
+
+#define N 100005
+vector<int> graph[N];
+vector<int> revGraph[N];
+bool vis[N];
+
+void rdfs(int u){
+	vis[u]=true;
+	for(int j=0;j<graph[u].size();j++){
+		int v=graph[u][j];
+		if(!vis[v]){
+			rdfs(v);
+		}
+	}
+}
+
+bool is_scg(int G_size){
+	for(int i=0;i<G_size;i++){
+		vis[i]=0;
+	}
+	rdfs(0);
+	for(int i=0;i<G_size;i++){
+		if(!vis[i]) return false;
+	}
+	for(int i=0;i<G_size;i++){
+		revGraph[i].clear();
+		vis[i]=0;
+	}
+	for(int i=0;i<G_size;i++){
+		for(int j=0;j<graph[i].size();j++){
+			revGraph[graph[i][j]].push_back(i);
+		}
+	}
+	rdfs(0);
+	for(int i=0;i<G_size;i++){
+		if(!vis[i]) return true;
+	}
+	return true;
+}
+
+int main(){
+	graph[0].push_back(5);
+	graph[6].push_back(3);
+	graph[4].push_back(0);
+	graph[1].push_back(2);
+	graph[1].push_back(4);
+	graph[2].push_back(1);
+	graph[2].push_back(3);
+	graph[3].push_back(2);
+	graph[4].push_back(1);
+	graph[5].push_back(6);
+	graph[6].push_back(5);
+	
+	cout<<is_scg(7);
 }
 
 // __________________________
@@ -2838,6 +2980,122 @@ int main(){
 	seive();
 	cout<<primes[2]<<" "<<primes[11]<<endl;
 	cout<<primes[1]<<" "<<primes[100]<<endl;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\tree\diameter.cpp
+
+// diameter of a tree
+
+#include<iostream>
+#include<vector>
+#include<queue>
+#include<algorithm>
+using namespace std;
+
+#define N 100005
+//item->weight,node
+vector<int> tree[N];
+
+pair<int,int> dfs(int u,int p,int d){
+	pair<int,int> res=make_pair(d,u);
+	for(int j=0;j<tree[u].size();j++){
+		if(tree[u][j]!=p){
+			res=max(res,dfs(tree[u][j],u,d+1));
+		}
+	}
+	return res;
+}
+
+int diameter(){
+	return dfs(dfs(0,-1,0).second,-1,0).first;
+}
+
+int main(){
+	tree[0].push_back(1);
+	tree[1].push_back(0);
+	tree[1].push_back(2);
+	tree[1].push_back(4);
+	tree[2].push_back(1);
+	tree[2].push_back(3);
+	tree[3].push_back(2);
+	tree[3].push_back(5);
+	tree[4].push_back(1);
+	tree[5].push_back(3);
+	tree[5].push_back(6);
+	tree[6].push_back(5);
+	cout<<diameter();
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\tree\minimum_vertext_cover.cpp
+
+// minimum vertex cover of a tree
+
+#include<iostream>
+#include<vector>
+#include<queue>
+#include<algorithm>
+using namespace std;
+
+#define N 100005
+//item->weight,node
+vector<int> tree[N];
+int dp[N][2];
+int tree_root;
+int mvc_rec(int v,int flag,int parent){
+	int ans=0;
+	cout<<"at "<<v<<" "<<flag<<endl;
+	if(dp[v][flag]!=-1){
+		return dp[v][flag];
+	}
+	else if((tree_root!=v && tree[v].size()==1) || (tree_root==v && tree[v].size()==0)){
+		ans=flag;
+	}
+	else if(!flag){
+		for(int j=0;j<tree[v].size();j++){
+			if(tree[v][j]==parent) continue;
+			ans+=mvc_rec(tree[v][j],1,v);
+		}
+	}
+	else{
+		ans=1;
+		for(int j=0;j<tree[v].size();j++){
+			if(tree[v][j]==parent) continue;
+			ans+=min(mvc_rec(tree[v][j],1,v),mvc_rec(tree[v][j],0,v));
+		}
+	}
+	return dp[v][flag]=ans;
+}
+
+int mvc(int s,int n){
+	for(int i=0;i<n;i++){
+		dp[i][0]=dp[i][1]=-1;
+	}
+	tree_root=s;
+	return min(mvc_rec(s,0,-1),mvc_rec(s,1,-1));
+}
+
+int main(){
+	tree[0].push_back(1);
+	tree[1].push_back(0);
+	tree[1].push_back(2);
+	tree[1].push_back(4);
+	tree[2].push_back(1);
+	tree[2].push_back(3);
+	tree[3].push_back(2);
+	tree[4].push_back(1);
+	cout<<mvc(0,5);
 }
 
 // __________________________
