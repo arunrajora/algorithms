@@ -2566,7 +2566,7 @@ void scc_dfs(int u){
 	
 }
 
-void apb(int n){
+void scc(int n){
 	timeCounter=0;
 	vis.assign(n,0);
 	d_low.assign(n,0);
@@ -2587,11 +2587,87 @@ int main(){
 	graph[5].push_back(6);
 	graph[6].push_back(5);
 	
-	apb(7);
+	scc(7);
 	for(int i=0;i<ccomponents.size();i++){
 		cout<<"Component "<<i<<endl;
 		for(int j=0;j<ccomponents[i].size();j++){
 			cout<<"\t"<<ccomponents[i][j]<<" "<<(d_num[ccomponents[i][j]]==d_low[ccomponents[i][j]])<<endl;
+		}
+	}
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\graphs\strongly_connected_component\strongly_connected_components_kosaraju.cpp
+
+// Strongly connected components
+// Kosaraju
+
+#include<iostream>
+#include<vector>
+#include<stack>
+#include<algorithm>
+using namespace std;
+
+#define N 1005
+vector<int> graph[N];
+vector<bool> vis;
+vector<vector<int>> ccomponents;
+
+void rdfs(int u,vector<int>& val,vector<int> adj[]){
+	vis[u]=true;
+	for(int i=0;i<adj[u].size();i++){
+		if(!vis[adj[u][i]]){
+			rdfs(adj[u][i],val,adj);
+		}
+	}
+	val.push_back(u);
+}
+
+void scc(int n){
+	vector<int> nodesList;
+	ccomponents.clear();
+	vector<int> revGraph[n];
+	vis.assign(n,false);
+	for(int i=0;i<n;i++){
+		if(!vis[i]){
+			rdfs(i,nodesList,graph);
+		}
+	}
+	for(int i=0;i<n;i++){
+		for(int j=0;j<graph[i].size();j++){
+			revGraph[graph[i][j]].push_back(i);
+		}
+	}
+	reverse(nodesList.begin(),nodesList.end());
+	vis.assign(n,false);
+	for(int i=0;i<nodesList.size();i++){
+		if(!vis[nodesList[i]]){
+			vector<int> comp;
+			rdfs(nodesList[i],comp,revGraph);
+			ccomponents.push_back(comp);
+		}
+	}
+}
+
+int main(){
+	graph[1].push_back(2);
+	graph[2].push_back(1);
+	graph[1].push_back(4);
+	graph[4].push_back(2);
+	graph[2].push_back(3);
+	graph[5].push_back(6);
+	graph[6].push_back(5);
+	
+	scc(7);
+	for(int i=0;i<ccomponents.size();i++){
+		cout<<"Component "<<i<<endl;
+		for(int j=0;j<ccomponents[i].size();j++){
+			cout<<"\t"<<ccomponents[i][j]<<endl;
 		}
 	}
 }
@@ -2988,6 +3064,184 @@ int main(){
 
 // __________________________
 
+// .\codes\strings\knuth_morris_pratt.cpp
+
+// knuth-morris-pratt ( KMP ) string matching algorithm
+//preprocess pattern - find in text
+
+#include<iostream>
+#include<vector>
+using namespace std;
+
+#define N 100005
+
+vector<int> back_table;
+
+void kmp_preprocess(string pattern){
+	back_table.clear();
+	int i=0,j=-1;
+	back_table.push_back(-1);
+	while(i<pattern.size()){
+		while(j>=0 && pattern[i]!=pattern[j]){
+			j=back_table[j];
+		}
+		i++;
+		j++;
+		back_table.push_back(j);
+	}
+}
+
+void kmp_search(string text,string pattern){
+	int i=0,j=0;
+	while(i<text.size()){
+		while(j>=0 && text[i]!=pattern[j]){
+			j=back_table[j];
+		}
+		i++;
+		j++;
+		if(j==pattern.size()){
+			cout<<"found at index "<<i-j<<endl;
+			j=back_table[j];
+		}
+	}
+}
+
+int main(){
+	kmp_preprocess("hello");
+	kmp_search("who is saying hello to me??","hello");
+	kmp_search("hi, hello, hey, hello","hello");
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\tree\center.cpp
+
+// center of a tree
+//reterns one or two vertices
+
+#include<iostream>
+#include<vector>
+#include<queue>
+#include<algorithm>
+using namespace std;
+
+#define N 100005
+vector<int> tree[N];
+
+vector<int> centerOfTree(int n){
+	vector<int> leaves,deg;
+	for(int i=0;i<n;i++){
+		deg.push_back(tree[i].size());
+		if(deg[i]<=1){
+			leaves.push_back(i);
+		}
+	}
+	int deleted=leaves.size();
+	while(deleted<n){
+		vector<int> temp_leaves;
+		for(int i=0;i<leaves.size();i++){
+			int u=leaves[i];
+			for(int j=0;j<tree[u].size();j++){
+				int v=tree[u][j];
+				deg[v]--;
+				if(deg[v]==1){
+					temp_leaves.push_back(v);
+				}
+			}
+		}
+		leaves=temp_leaves;
+		deleted+=leaves.size();
+	}
+	return leaves;
+}
+
+int main(){
+	tree[0].push_back(1);
+	tree[1].push_back(0);
+	tree[1].push_back(2);
+	tree[1].push_back(4);
+	tree[2].push_back(1);
+	tree[2].push_back(3);
+	tree[3].push_back(2);
+	tree[3].push_back(5);
+	tree[4].push_back(1);
+	tree[5].push_back(3);
+	tree[5].push_back(6);
+	tree[6].push_back(5);
+	vector<int> center=centerOfTree(7);
+	for(int i=0;i<center.size();i++){
+		cout<<center[i]<<" ";
+	}
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\tree\centroid.cpp
+
+// centroid of a tree
+// subtree of centroid has size <=(N/2)
+
+#include<iostream>
+#include<vector>
+#include<queue>
+#include<algorithm>
+using namespace std;
+
+#define N 100005
+vector<int> tree[N];
+
+int rec_centroid(int u,int parent,int n){
+	int count=1;
+	bool isGoodCenter=true;
+	for(int i=0;i<tree[u].size();i++){
+		if(tree[u][i]==parent){
+			continue;
+		}
+		int val=rec_centroid(tree[u][i],u,n);
+		if(val>=0){
+			return val;
+		}
+		isGoodCenter&=(-val)<=(n/2);
+		count-=val;
+	}
+	isGoodCenter&=(n-count)<=(n/2);
+	return isGoodCenter?u:-count;
+}
+
+int centroidOfTree(int n){
+	return rec_centroid(0,-1,n);
+}
+
+int main(){
+	tree[0].push_back(1);
+	tree[1].push_back(0);
+	tree[1].push_back(2);
+	tree[1].push_back(4);
+	tree[2].push_back(1);
+	tree[2].push_back(3);
+	tree[3].push_back(2);
+	tree[3].push_back(5);
+	tree[4].push_back(1);
+	tree[5].push_back(3);
+	tree[5].push_back(6);
+	tree[6].push_back(5);
+	cout<<centroidOfTree(7);
+}
+
+// __________________________
+
+
+
+// __________________________
+
 // .\codes\tree\diameter.cpp
 
 // diameter of a tree
@@ -2999,7 +3253,6 @@ int main(){
 using namespace std;
 
 #define N 100005
-//item->weight,node
 vector<int> tree[N];
 
 pair<int,int> dfs(int u,int p,int d){
