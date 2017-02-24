@@ -9,7 +9,6 @@
 using namespace std;
 
 #define N 100005
-//item->weight,node
 vector<int> tree[N];
 
 vector<int> centerOfTree(int n){

@@ -8,7 +8,6 @@
 using namespace std;
 
 #define N 100005
-//item->weight,node
 vector<int> tree[N];
 
 pair<int,int> dfs(int u,int p,int d){
