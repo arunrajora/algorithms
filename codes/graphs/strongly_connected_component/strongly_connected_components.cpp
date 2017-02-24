@@ -45,7 +45,7 @@ void scc_dfs(int u){
 	
 }
 
-void apb(int n){
+void scc(int n){
 	timeCounter=0;
 	vis.assign(n,0);
 	d_low.assign(n,0);
@@ -66,7 +66,7 @@ int main(){
 	graph[5].push_back(6);
 	graph[6].push_back(5);
 	
-	apb(7);
+	scc(7);
 	for(int i=0;i<ccomponents.size();i++){
 		cout<<"Component "<<i<<endl;
 		for(int j=0;j<ccomponents[i].size();j++){
