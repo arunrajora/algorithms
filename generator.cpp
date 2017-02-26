@@ -12,7 +12,7 @@ ofstream outFile;
 long fileNumber=0,dirNumber=0,errorNumber=0;
 
 string get_file_name(){
-	return "CODES_"+to_string(time(NULL))+".cpp";
+	return "CODES_LIST.cpp";
 }
 
 void dumpFileContents(string dirName, string fileName){
