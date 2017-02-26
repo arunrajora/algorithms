@@ -899,6 +899,58 @@ int main(){
 
 // __________________________
 
+// .\codes\data structures\sparse_table.cpp
+
+// sparse table (range minimum query or least common ancestor)
+// build - 0(NlgN) , query 0(1)
+
+#include<iostream>
+#include<vector>
+using namespace std;
+
+#define LN 1000
+
+vector<int> table;
+vector<int> dp[LN];
+
+void build(int arr[],int n){	
+	table.resize(n+1);
+	for(int i=2;i<=n;i++){
+		table[i]=table[i>>1]+1;
+	}
+	for(int i=0;i<n;i++){
+		dp[i].resize(table[n]+1);
+		dp[i][0]=i;
+	}
+	for(int k=1;(1<<k)<n;k++){
+		for(int i=0;i+(1<<k)<=n;i++){
+			int x=dp[i][k-1];
+			int y=dp[i+(1<<(k-1))][k-1];
+			dp[i][k]=arr[x]<=arr[y]?x:y;
+		}
+	}
+}
+
+//returns minimum element
+int query(int arr[],int l,int r){
+	int k=table[r-l+1];
+	int x=dp[l][k];
+	int y=dp[r-(1<<k)+1][k];
+	return arr[x]<=arr[y]?arr[x]:arr[y];
+}
+
+int main(){
+	int arr[]={-20000,10,-100,50,30};
+	build(arr,5);
+	cout<<query(arr,0,4)<<endl;
+}
+
+// __________________________
+
+
+
+// __________________________
+
 // .\codes\date\day_from_date.cpp
 
 //Calculate day from date
@@ -1458,6 +1510,91 @@ MAXIMIM INDEPENDENT SET=TOTAL EDGES - MAXIMUM CARDINALITY BIPARTITE MATCHING
 
 // __________________________
 
+// .\codes\graphs\maximum_flow\dinic.cpp
+
+// Edmonds Karp
+// maximum flow in a graph
+// 0(V^3E) implementation
+
+#include<iostream>
+#include<vector>
+#include<queue>
+#include<algorithm>
+using namespace std;
+
+#define N 1005
+#define INF 100000000
+
+int graph[N][N];
+int res[N][N];
+vector<int> parent;
+cleargraph(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) graph[i][j]=val;}
+
+void augment( int v,int s,int minEdge,int& f){
+	if(v==s){
+		f=minEdge;
+	}
+	else if(parent[v]!=-1){
+		augment(parent[v],s,min(minEdge,res[parent[v]][v]),f);
+		res[parent[v]][v]-=f;
+		res[v][parent[v]]+=f;
+	}
+}
+
+int max_flow(int s,int t,int n){
+	for(int i=0;i<n;i++){
+		for(int j=0;j<n;j++){
+			res[i][j]=graph[i][j];
+		}
+	}
+	int mf=0;
+	while(true){
+		int f=0;
+		vector<int> dist(n,INF);
+		dist[s]=0;
+		queue<int> q;
+		q.push(s);
+		parent.assign(n,-1);
+		while(!q.empty()){
+			int u=q.front();
+			q.pop();
+			if(u==t) break;
+			for(int v=0;v<n;v++){
+				if(res[u][v]>0 && dist[v]==INF){
+					dist[v]=dist[u]+1;
+					q.push(v);
+					parent[v]=u;
+				}
+			}
+		}
+		augment(t,s,INF,f);
+		if(f==0) break;
+		mf+=f;
+	}
+	return mf;
+}
+
+int main(){
+	
+	cleargraph(7,7,0);
+	graph[0][1]=100;
+	graph[0][5]=1;
+	graph[1][2]=20;
+	graph[1][4]=10;
+	graph[2][4]=20;
+	graph[2][3]=10;
+	graph[5][6]=10;
+	graph[6][4]=1;
+
+	cout<<max_flow(0,4,7)<<endl;
+}
+
+// __________________________
+
+
+
+// __________________________
+
 // .\codes\graphs\maximum_flow\edmonds_karp.cpp
 
 // Edmonds Karp
@@ -1534,6 +1671,83 @@ int main(){
 	graph[5][6]=10;
 	graph[6][4]=1;
 
+	cout<<max_flow(0,4,7)<<endl;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\graphs\maximum_flow\edmonds_karp_better.cpp
+
+// Edmonds Karp
+// maximum flow in a graph
+// 0(min(VE^2),E*|f|) implementation
+
+#include<iostream>
+#include<vector>
+#include<algorithm>
+using namespace std;
+
+#define N 1005
+#define INF 0x3f3f3f3f
+
+struct edge{
+	int source;
+	int destination;
+	int rev_pos;
+	int capacity;
+	int flow;
+};
+vector<edge> graph[N];
+
+void add_edge(int s,int d,int c){
+	graph[s].push_back((edge){s,d,graph[d].size(),c,0});
+	graph[d].push_back((edge){d,s,graph[s].size()-1,0,0});
+}
+
+int max_flow(int s,int t,int n){
+	int max_flow=0;
+	vector<int> q;
+	while(1){
+		q.push_back(s);
+		vector<edge*> pred;
+		pred.assign(n,NULL);
+		for(int i=0;i<q.size() && !pred[t];i++){
+			int u=q[i];
+			for(int j=0;j<graph[u].size();j++){
+				edge* e=&graph[u][j];
+				if(!pred[e->destination] && e->capacity > e->flow){
+					pred[e->destination]=e;
+					q.push_back(e->destination);
+				}
+			}
+		}
+		if(!pred[t]) break;
+		int temp_flow=INF;
+		for(int u=t;u!=s;u=pred[u]->source){
+			temp_flow=min(temp_flow,pred[u]->capacity -pred[u]->flow);
+		}
+		for(int u=t;u!=s;u=pred[u]->source){
+			pred[u]->flow+=temp_flow;
+			graph[pred[u]->destination][pred[u]->rev_pos].flow-=temp_flow;
+		}
+		max_flow+=temp_flow;
+	}
+	return max_flow;
+}
+
+int main(){
+	add_edge(0,1,100);
+	add_edge(0,5,1);
+	add_edge(1,2,20);
+	add_edge(1,4,10);
+	add_edge(2,4,20);
+	add_edge(2,3,10);
+	add_edge(5,6,10);
+	add_edge(6,4,1);
 	cout<<max_flow(0,4,7)<<endl;
 }
 
