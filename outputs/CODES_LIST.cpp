@@ -754,6 +754,107 @@ int main(){
 
 // __________________________
 
+// .\codes\data structures\priority_queue.cpp
+
+// Priority Queue
+
+#include<iostream>
+#include<vector>
+#include<algorithm>
+using namespace std;
+
+#define INF 100000000
+
+int left(int x){ return 2*x+1; }
+
+int right(int x){ return 2*x+2; }
+
+int heap_size;
+
+void max_heapify(vector<int>& arr,int i){
+	int l=left(i);
+	int r=right(i);
+	int largest=i;
+	if(l<heap_size && arr[l]>arr[i]){
+		largest=l;
+	}
+	if(r<heap_size && arr[r]>arr[largest]){
+		largest=r;
+	}
+	if(largest!=i){
+		swap(arr[i],arr[largest]);
+		max_heapify(arr,largest);
+	}
+}
+
+void build(vector<int>& arr){
+	heap_size=arr.size();
+	for(int i=arr.size()/2-1;i>=0;i--){
+		max_heapify(arr,i);
+	}
+}
+
+void increase_key(vector<int>& arr,int i,int key){
+	if(key<arr[i]){
+		cout<<"key is smaller than current key."<<endl;
+	}
+	arr[i]=key;
+	while(i>0 && arr[i/2]<arr[i]){
+		swap(arr[i],arr[i/2]);
+		i/=2;
+	}
+}
+
+void insert_val(vector<int>& arr,int key){
+	heap_size++;
+	arr[heap_size-1]=-INF;
+	increase_key(arr,heap_size-1,key);
+}
+
+int extract_max(vector<int>& arr){
+	if(heap_size<1){
+		cout<<" heap underflow"<<endl;
+	}
+	int mmax=arr[0];
+	arr[0]=arr[heap_size-1];
+	heap_size--;
+	max_heapify(arr,0);
+	return mmax;
+}
+
+int heap_max(vector<int>& arr){
+	return arr[0];
+}
+
+int main(){
+	
+	vector<int> arr;
+	arr.push_back(5);
+	arr.push_back(4);
+	arr.push_back(3);
+	arr.push_back(1);
+	arr.push_back(2);
+	arr.push_back(2);
+	arr.push_back(2);
+	arr.push_back(2);
+	build(arr);
+	for(int x:arr){
+		cout<<x<<" ";
+	}
+	cout<<endl;
+	insert_val(arr,100);
+	cout<<extract_max(arr)<<endl;
+	cout<<extract_max(arr)<<endl;
+	cout<<extract_max(arr)<<endl;
+	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
 // .\codes\data structures\segment_tree.cpp
 // Segment tree with lazy propogation (max in range query)
 
@@ -1512,80 +1613,95 @@ MAXIMIM INDEPENDENT SET=TOTAL EDGES - MAXIMUM CARDINALITY BIPARTITE MATCHING
 
 // .\codes\graphs\maximum_flow\dinic.cpp
 
-// Edmonds Karp
+// dinic
 // maximum flow in a graph
-// 0(V^3E) implementation
+// 0(V^2E) implementation
 
 #include<iostream>
 #include<vector>
-#include<queue>
 #include<algorithm>
+#include<queue>
 using namespace std;
 
 #define N 1005
-#define INF 100000000
+#define INF 0x3f3f3f3f
 
-int graph[N][N];
-int res[N][N];
-vector<int> parent;
-cleargraph(int r,int c,int val){for(int i=0;i<r;i++) for(int j=0;j<c;j++) graph[i][j]=val;}
+struct edge{
+	int source;
+	int destination;
+	int rev_pos;
+	int capacity;
+	int flow;
+};
+vector<edge> graph[N];
+vector<int> ptr;
+vector<int> dist;
 
-void augment( int v,int s,int minEdge,int& f){
-	if(v==s){
-		f=minEdge;
+void add_edge(int s,int d,int c){
+	graph[s].push_back((edge){s,d,graph[d].size(),c,0});
+	graph[d].push_back((edge){d,s,graph[s].size()-1,0,0});
+}
+
+int dbfs(int s,int t,int n){
+	dist.assign(n,-1);
+	dist[s]=0;
+	queue<int> q;
+	q.push(s);
+	while(!q.empty()){
+		int u=q.front();
+		q.pop();
+		for(int i=0;i<graph[u].size();i++){
+			edge& e=graph[u][i];
+			if(dist[e.destination]<0 && e.flow<e.capacity){
+				dist[e.destination]=dist[u]+1;
+				q.push(e.destination);
+			}
+		}
 	}
-	else if(parent[v]!=-1){
-		augment(parent[v],s,min(minEdge,res[parent[v]][v]),f);
-		res[parent[v]][v]-=f;
-		res[v][parent[v]]+=f;
+	return dist[t]>=0;
+}
+
+int ddfs(int u,int t,int flow){
+	if(u==t){
+		return flow;
 	}
+	while(ptr[u]<graph[u].size()){
+		edge &e=graph[u][ptr[u]];
+		if(dist[e.destination]==dist[u]+1 && e.flow<e.capacity){
+			int tflow=ddfs(e.destination,t,e.capacity-e.flow);
+			if(tflow>0){
+				e.flow+=tflow;
+				graph[e.destination][e.rev_pos].flow-=tflow;
+				return tflow;
+			}
+		}
+		ptr[u]++;
+	}
+	return 0;
 }
 
 int max_flow(int s,int t,int n){
-	for(int i=0;i<n;i++){
-		for(int j=0;j<n;j++){
-			res[i][j]=graph[i][j];
-		}
+	int max_flow=0;
+	while(dbfs(s,t,n)){
+		ptr.assign(n,0);
+		int tflow;
+		do{
+			tflow=ddfs(s,t,INF);
+			max_flow+=tflow;
+		}while(tflow!=0);
 	}
-	int mf=0;
-	while(true){
-		int f=0;
-		vector<int> dist(n,INF);
-		dist[s]=0;
-		queue<int> q;
-		q.push(s);
-		parent.assign(n,-1);
-		while(!q.empty()){
-			int u=q.front();
-			q.pop();
-			if(u==t) break;
-			for(int v=0;v<n;v++){
-				if(res[u][v]>0 && dist[v]==INF){
-					dist[v]=dist[u]+1;
-					q.push(v);
-					parent[v]=u;
-				}
-			}
-		}
-		augment(t,s,INF,f);
-		if(f==0) break;
-		mf+=f;
-	}
-	return mf;
+	return max_flow;
 }
 
 int main(){
-	
-	cleargraph(7,7,0);
-	graph[0][1]=100;
-	graph[0][5]=1;
-	graph[1][2]=20;
-	graph[1][4]=10;
-	graph[2][4]=20;
-	graph[2][3]=10;
-	graph[5][6]=10;
-	graph[6][4]=1;
-
+	add_edge(0,1,100);
+	add_edge(0,5,1);
+	add_edge(1,2,20);
+	add_edge(1,4,10);
+	add_edge(2,4,20);
+	add_edge(2,3,10);
+	add_edge(5,6,10);
+	add_edge(6,4,1);
 	cout<<max_flow(0,4,7)<<endl;
 }
 
@@ -3270,6 +3386,360 @@ int main(){
 	seive();
 	cout<<primes[2]<<" "<<primes[11]<<endl;
 	cout<<primes[1]<<" "<<primes[100]<<endl;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\sort\bubble_sort.cpp
+
+// Bubble sort
+
+#include<iostream>
+#include<vector>
+#include<algorithm>
+using namespace std;
+
+void bsort(vector<int> & arr){
+	for(int i=0;i<arr.size()-1;i++){
+		int swaps=0;
+		for(int j=0;j<arr.size()-i-1;j++){
+			if(arr[j]>arr[j+1]){
+				swap(arr[j],arr[j+1]);
+				swaps++;
+			}
+		}
+		if(!swaps) break;
+	}
+}
+
+int main(){
+	
+	vector<int> arr;
+	arr.push_back(5);
+	arr.push_back(4);
+	arr.push_back(3);
+	arr.push_back(1);
+	arr.push_back(2);
+	bsort(arr);
+	for(int x:arr){
+		cout<<x<<" ";
+	}
+	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\sort\heap_sort.cpp
+
+// Heap sort
+
+#include<iostream>
+#include<vector>
+#include<algorithm>
+using namespace std;
+
+int left(int x){ return 2*x+1; }
+
+int right(int x){ return 2*x+2; }
+
+int heap_size;
+
+void max_heapify(vector<int>& arr,int i){
+	int l=left(i);
+	int r=right(i);
+	int largest=i;
+	if(l<heap_size && arr[l]>arr[i]){
+		largest=l;
+	}
+	if(r<heap_size && arr[r]>arr[largest]){
+		largest=r;
+	}
+	if(largest!=i){
+		swap(arr[i],arr[largest]);
+		max_heapify(arr,largest);
+	}
+}
+
+void build(vector<int>& arr){
+	heap_size=arr.size();
+	for(int i=arr.size()/2-1;i>=0;i--){
+		max_heapify(arr,i);
+	}
+}
+
+void hsort(vector<int>& arr){
+	build(arr);
+	for(int i=arr.size()-1;i>0;i--){
+		swap(arr[0],arr[i]);
+		heap_size--;
+		max_heapify(arr,0);
+	}
+}
+
+int main(){
+	
+	vector<int> arr;
+	arr.push_back(5);
+	arr.push_back(4);
+	arr.push_back(3);
+	arr.push_back(1);
+	arr.push_back(2);
+	arr.push_back(2);
+	arr.push_back(2);
+	arr.push_back(2);
+	hsort(arr);
+	for(int x:arr){
+		cout<<x<<" ";
+	}
+	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\sort\merge_sort.cpp
+
+// Merge sort
+
+#include<iostream>
+#include<vector>
+#include<algorithm>
+using namespace std;
+
+int merge_array(vector<int>& arr,int l,int mid,int r){
+	vector<int> larr;
+	vector<int> rarr;
+	for(int i=l;i<=r;i++){
+		if(i<=mid){
+			larr.push_back(arr[i]);
+		}
+		else{
+			rarr.push_back(arr[i]);
+		}
+	}
+	int n=0,m=0,i=l;
+	while(n<larr.size() && m<rarr.size()){
+		if(larr[n]<rarr[m]){
+			arr[i]=larr[n];
+			i++;
+			n++;
+		}
+		else{
+			arr[i]=rarr[m];
+			i++;
+			m++;
+		}
+	}
+	while(n<larr.size()){
+		arr[i]=larr[n];
+		i++;
+		n++;
+	}
+	while(m<rarr.size()){
+		arr[i]=rarr[m];
+		i++;
+		m++;
+	}
+}
+
+void msort_rec(vector<int>& arr,int l,int r){
+	if(l<r){
+		int mid=(l+r)/2;
+		msort_rec(arr,l,mid);
+		msort_rec(arr,mid+1,r);
+		merge_array(arr,l,mid,r);
+	}
+}
+
+void msort(vector<int>& arr){
+	msort_rec(arr,0,arr.size()-1);
+}
+
+int main(){
+	
+	vector<int> arr;
+	arr.push_back(5);
+	arr.push_back(4);
+	arr.push_back(3);
+	arr.push_back(1);
+	arr.push_back(2);
+	msort(arr);
+	for(int x:arr){
+		cout<<x<<" ";
+	}
+	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\sort\quick_sort.cpp
+
+// Quick sort
+
+#include<iostream>
+#include<vector>
+#include<algorithm>
+using namespace std;
+
+int partition(vector<int>& arr,int l,int r){
+	int x=arr[r];
+	int i=l-1;
+	for(int j=l;j<r;j++){
+		if(arr[j]<=x){
+			i++;
+			swap(arr[i],arr[j]);
+		}
+	}
+	swap(arr[i+1],arr[r]);
+	return i+1;
+}
+
+void qsort_rec(vector<int>& arr,int l,int r){
+	if(l<r){
+		int q=partition(arr,l,r);
+		qsort_rec(arr,l,q-1);
+		qsort_rec(arr,q,r);
+	}
+}
+
+void qsort(vector<int>& arr){
+	qsort_rec(arr,0,arr.size()-1);
+}
+
+int main(){
+	
+	vector<int> arr;
+	arr.push_back(5);
+	arr.push_back(4);
+	arr.push_back(3);
+	arr.push_back(1);
+	arr.push_back(2);
+	qsort(arr);
+	for(int x:arr){
+		cout<<x<<" ";
+	}
+	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\sort\randomized_quick_sort.cpp
+
+// Randomized Quick sort
+
+#include<iostream>
+#include<vector>
+#include<algorithm>
+#include<random>
+using namespace std;
+
+int partition(vector<int>& arr,int l,int r){
+	int x=arr[r];
+	int i=l-1;
+	for(int j=l;j<r;j++){
+		if(arr[j]<=x){
+			i++;
+			swap(arr[i],arr[j]);
+		}
+	}
+	swap(arr[i+1],arr[r]);
+	return i+1;
+}
+
+int rpartition(vector<int>& arr,int l,int r){
+	int i=rand()%(r-l+1)+l;
+	swap(arr[r],arr[i]);
+	return partition(arr,l,r);
+}
+
+void qsort_rec(vector<int>& arr,int l,int r){
+	if(l<r){
+		int q=rpartition(arr,l,r);
+		qsort_rec(arr,l,q-1);
+		qsort_rec(arr,q,r);
+	}
+}
+
+void qsort(vector<int>& arr){
+	qsort_rec(arr,0,arr.size()-1);
+}
+
+int main(){
+	
+	vector<int> arr;
+	arr.push_back(5);
+	arr.push_back(4);
+	arr.push_back(3);
+	arr.push_back(1);
+	arr.push_back(2);
+	qsort(arr);
+	for(int x:arr){
+		cout<<x<<" ";
+	}
+	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\sort\selection.cpp
+
+// Selection sort
+
+#include<iostream>
+#include<vector>
+#include<algorithm>
+using namespace std;
+
+void ssort(vector<int> & arr){
+	for(int i=0;i<arr.size()-1;i++){
+		int spos=i;
+		for(int j=i+1;j<arr.size();j++){
+			if(arr[spos]>arr[j]){
+				spos=j;
+			}
+		}
+		if(spos!=i){
+			swap(arr[i],arr[spos]);
+		}
+	}
+}
+
+int main(){
+	
+	vector<int> arr;
+	arr.push_back(5);
+	arr.push_back(4);
+	arr.push_back(3);
+	arr.push_back(1);
+	arr.push_back(2);
+	ssort(arr);
+	for(int x:arr){
+		cout<<x<<" ";
+	}
+	return 0;
 }
 
 // __________________________
