@@ -1052,6 +1052,88 @@ int main(){
 
 // __________________________
 
+// .\codes\data structures\stack.cpp
+
+// Stack
+
+#include<iostream>
+using namespace std;
+
+struct node{
+	int data;
+	node* next;
+	node* prev;
+};
+
+class stack{
+	public:
+		node* root;
+		int count;
+		
+		stack(){
+			root=NULL;
+			count=0;
+		}
+		
+		//true for empty
+		bool isempty(){
+			return root==NULL;
+		}
+		
+		int size(){
+			return count;
+		}
+		
+		void push(int val){
+			node *x=new node();
+			if(x==NULL){
+				throw "memory limit exceeded";
+			}
+			x->data=val;
+			x->prev=NULL;
+			x->next=root;
+			root=x;
+			count++;
+		}
+		
+		int pop(){
+			if(root==NULL){
+				throw "underflow";
+			}
+			int val=root->data;
+			node* x=root;
+			if(x->next==NULL){
+				root=NULL;
+			}
+			else{
+				x->next->prev=NULL;
+				root=x->next;
+			}
+			count--;
+			return val;
+		}
+		
+};
+int main(){
+	stack x;
+	x.push(1);
+	x.push(2);
+	x.push(3);
+	cout<<x.size()<<endl;
+	cout<<x.pop()<<endl;
+	cout<<x.pop()<<endl;
+	cout<<x.pop()<<endl;
+	x.push(100);
+	cout<<x.pop()<<endl;
+	
+}
+
+// __________________________
+
+
+
+// __________________________
+
 // .\codes\date\day_from_date.cpp
 
 //Calculate day from date
@@ -3437,6 +3519,65 @@ int main(){
 
 // __________________________
 
+// .\codes\sort\count_sort.cpp
+
+// Count sort
+
+#include<iostream>
+#include<vector>
+#include<algorithm>
+using namespace std;
+
+#define INF 1000000000
+
+void csort(vector<int> & arr){
+	if(arr.size()==0){
+		return ;
+	}
+	int mmax=-INF;
+	int mmin=INF;
+	for(auto x:arr){
+		mmin=min(mmin,x);
+		mmax=max(mmax,x);
+	}
+	vector<int> carr;
+	carr.assign(mmax-mmin+1,0);
+	for(auto x:arr){
+		carr[x-mmin]++;
+	}
+	for(int i=1;i<mmax-mmin+1;i++){
+		carr[i]+=carr[i-1];
+	}
+	vector<int> result;
+	result.assign(arr.size(),0);
+	for(int i=arr.size()-1;i>=0;i--){
+		result[carr[arr[i]-mmin]-1]=arr[i];
+		carr[arr[i]-mmin]--;
+	}
+	arr=result;
+}
+
+int main(){
+	
+	vector<int> arr;
+	arr.push_back(4);
+	arr.push_back(3);
+	arr.push_back(1);
+	arr.push_back(2);
+	arr.push_back(-100);
+	csort(arr);
+	for(int x:arr){
+		cout<<x<<" ";
+	}
+	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
 // .\codes\sort\heap_sort.cpp
 
 // Heap sort
@@ -3630,6 +3771,67 @@ int main(){
 	arr.push_back(1);
 	arr.push_back(2);
 	qsort(arr);
+	for(int x:arr){
+		cout<<x<<" ";
+	}
+	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\sort\radix_sort.cpp
+
+// Radix sort
+//negative numbers not handled
+
+#include<iostream>
+#include<vector>
+#include<algorithm>
+using namespace std;
+
+#define INF 1000000000
+
+void csort(vector<int> & arr,int base,int extractor){
+	vector<int> carr;
+	carr.assign(base,0);
+	for(auto x:arr){
+		carr[(x/extractor)%base]++;
+	}
+	for(int i=1;i<base;i++){
+		carr[i]+=carr[i-1];
+	}
+	vector<int> result;
+	result.assign(arr.size(),0);
+	for(int i=arr.size()-1;i>=0;i--){
+		result[carr[(arr[i]/extractor)%base]-1]=arr[i];
+		carr[(arr[i]/extractor)%base]--;
+	}
+	arr=result;
+}
+
+void rsort(vector<int>& arr,int base){
+	int mmax=-INF;
+	for(auto x:arr){
+		mmax=max(mmax,x);
+	}
+	for(int i=1;i<=mmax;i*=base){
+		csort(arr,base,i);
+	}
+}
+
+int main(){
+	
+	vector<int> arr;
+	arr.push_back(4);
+	arr.push_back(3);
+	arr.push_back(1);
+	arr.push_back(2);
+	arr.push_back(100);
+	rsort(arr,10);
 	for(int x:arr){
 		cout<<x<<" ";
 	}
