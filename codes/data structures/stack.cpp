@@ -54,6 +54,7 @@ class stack{
 				x->next->prev=NULL;
 				root=x->next;
 			}
+			delete x;
 			count--;
 			return val;
 		}
