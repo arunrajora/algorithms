@@ -3456,6 +3456,252 @@ int main(){
 
 // __________________________
 
+// .\codes\maths\fibonacci(bad space complexity).cpp
+
+// n-th fibonacci number
+
+#include<iostream>
+#include<vector>
+using namespace std;
+
+#define ull unsigned long long
+
+#define FIBMAX 100005
+
+int fdp[FIBMAX]={0};
+
+ull fib(int n){
+	if(n<3){
+		return fdp[n]=(n>0);
+	}
+	if(fdp[n]>0){
+		return fdp[n];
+	}
+	int k=(n%2)?(n+1)/2:n/2;
+	return fdp[n]=(n%2)?(fib(k)*fib(k)+fib(k-1)*fib(k-1)):fib(k)*(fib(k)+2*fib(k-1));
+}
+
+int main(){
+	cout<<fib(0)<<endl;
+	cout<<fib(1)<<endl;
+	cout<<fib(2)<<endl;
+	cout<<fib(3)<<endl;
+	cout<<fib(4)<<endl;
+	cout<<fib(5)<<endl;
+	cout<<fib(6)<<endl;
+	cout<<fib(7)<<endl;
+	cout<<fib(8)<<endl;
+	cout<<fib(9)<<endl;
+	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\maths\fibonacci.cpp
+
+// n-th fibonacci number
+
+#include<iostream>
+#include<vector>
+using namespace std;
+
+#define ull unsigned long long
+
+#define FIBMAX 100005
+
+void mat_multiply(int a[2][2],int b[2][2]){
+	int p=a[0][0]*b[0][0]+a[0][1]*b[1][0];
+	int q=a[0][0]*b[0][1]+a[0][1]*b[1][1];
+	int r=a[1][0]*b[0][0]+a[1][1]*b[1][0];
+	int s=a[1][0]*b[0][1]+a[1][1]*b[1][1];
+	a[0][0]=p;
+	a[0][1]=q;
+	a[1][0]=r;
+	a[1][1]=s;
+}
+
+void fibpow(int f[2][2],int n){
+	if(n<2) return;
+	int val[2][2]={{1,1},{1,0}};
+	fibpow(f,n/2);
+	mat_multiply(f,f);
+	if(n&1){
+		mat_multiply(f,val);
+	}
+}
+
+ull fib(int n){
+	int val[2][2]={{1,1},{1,0}};
+	if(n>0)
+	fibpow(val,n-1);
+	return n>0?val[0][0]:0;
+}
+
+int main(){
+	cout<<fib(0)<<endl;
+	cout<<fib(1)<<endl;
+	cout<<fib(2)<<endl;
+	cout<<fib(3)<<endl;
+	cout<<fib(4)<<endl;
+	cout<<fib(5)<<endl;
+	cout<<fib(6)<<endl;
+	cout<<fib(7)<<endl;
+	cout<<fib(8)<<endl;
+	cout<<fib(9)<<endl;
+	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\maths\fibonacci_mod(bad space complexity).cpp
+
+// n-th fibonacci number
+
+#include<iostream>
+#include<vector>
+using namespace std;
+
+#define ull unsigned long long
+
+#define FIBMAX 100005
+
+int fdp[FIBMAX]={0};
+
+ull fib(ull n,ull mod){
+	if(n<3){
+		return fdp[n]=(n>0);
+	}
+	if(fdp[n]>0){
+		return fdp[n];
+	}
+	int k=(n%2)?(n+1)/2:n/2;
+	return fdp[n]=(n%2)?((fib(k,mod)*fib(k,mod))%mod+(fib(k-1,mod)*fib(k-1,mod)%mod))%mod:(fib(k,mod)*(((fib(k,mod)+2*fib(k-1,mod)))%mod))%mod;
+}
+
+int main(){
+	cout<<fib(0,10)<<endl;
+	cout<<fib(1,10)<<endl;
+	cout<<fib(2,10)<<endl;
+	cout<<fib(3,10)<<endl;
+	cout<<fib(4,10)<<endl;
+	cout<<fib(5,10)<<endl;
+	cout<<fib(6,10)<<endl;
+	cout<<fib(7,10)<<endl;
+	cout<<fib(8,10)<<endl;
+	cout<<fib(9,10)<<endl;
+	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\maths\fibonacci_mod.cpp
+
+// n-th fibonacci number
+
+#include<iostream>
+#include<vector>
+using namespace std;
+
+#define ull unsigned long long
+
+#define FIBMAX 100005
+
+void mat_multiply(ull a[2][2],ull b[2][2],ull mod){
+	ull p=((a[0][0]*b[0][0])%mod+(a[0][1]*b[1][0])%mod)%mod;
+	ull q=((a[0][0]*b[0][1])%mod+(a[0][1]*b[1][1])%mod)%mod;
+	ull r=((a[1][0]*b[0][0])%mod+(a[1][1]*b[1][0])%mod)%mod;
+	ull s=((a[1][0]*b[0][1])%mod+(a[1][1]*b[1][1])%mod)%mod;
+	a[0][0]=p;
+	a[0][1]=q;
+	a[1][0]=r;
+	a[1][1]=s;
+}
+
+void fibpow(ull f[2][2],ull n,ull mod){
+	if(n<2) return;
+	ull val[2][2]={{1,1},{1,0}};
+	fibpow(f,n/2,mod);
+	mat_multiply(f,f,mod);
+	if(n&1){
+		mat_multiply(f,val,mod);
+	}
+}
+
+ull fib(ull n,ull mod){
+	ull val[2][2]={{1,1},{1,0}};
+	if(n>0)
+	fibpow(val,n-1,mod);
+	return n>0?val[0][0]:0;
+}
+
+int main(){
+	cout<<fib(0,10)<<endl;
+	cout<<fib(1,10)<<endl;
+	cout<<fib(2,10)<<endl;
+	cout<<fib(3,10)<<endl;
+	cout<<fib(4,10)<<endl;
+	cout<<fib(5,10)<<endl;
+	cout<<fib(6,10)<<endl;
+	cout<<fib(7,10)<<endl;
+	cout<<fib(8,10)<<endl;
+	cout<<fib(9,10)<<endl;
+	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\maths\fibonacci_precompute.cpp
+
+// precompute fibonacci numbers
+
+#include<iostream>
+#include<vector>
+using namespace std;
+
+#define ull unsigned long long
+
+#define FIBMAX 100005
+
+vector<int> fib;
+
+void pre_fib(int n=FIBMAX){
+	 fib.assign(n+1,0);
+	 fib[1]=1;
+	 for(int i=2;i<=n;i++){
+	 	fib[i]=fib[i-1]+fib[i-2];
+	 }
+}
+
+int main(){
+	pre_fib();
+	for(int i=0;i<10;i++){
+		cout<<fib[i]<<endl;
+	}
+	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
 // .\codes\maths\hcf.cpp
 
 // HCF (Highest Common Factor)
