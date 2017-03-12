@@ -23,7 +23,7 @@ void qsort_rec(vector<int>& arr,int l,int r){
 	if(l<r){
 		int q=partition(arr,l,r);
 		qsort_rec(arr,l,q-1);
-		qsort_rec(arr,q,r);
+		qsort_rec(arr,q+1,r);
 	}
 }
 
