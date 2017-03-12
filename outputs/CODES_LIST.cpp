@@ -58,6 +58,80 @@ int main(){
 
 // __________________________
 
+// .\codes\array\ith-smallest-number.cpp
+
+// ith smallest number in an array.
+// 1st smallest no. is smallest no., 2nd smallest no. is second-smallest no. and so on.
+
+#include<iostream>
+#include<vector>
+#include<algorithm>
+#include<random>
+using namespace std;
+
+int partition(vector<int>& arr,int l,int r){
+	int x=arr[r];
+	int i=l-1;
+	for(int j=l;j<r;j++){
+		if(arr[j]<=x){
+			i++;
+			swap(arr[i],arr[j]);
+		}
+	}
+	swap(arr[i+1],arr[r]);
+	return i+1;
+}
+
+int rpartition(vector<int>& arr,int l,int r){
+	int i=rand()%(r-l+1)+l;
+	swap(arr[r],arr[i]);
+	return partition(arr,l,r);
+}
+
+int qsort_rec(vector<int>& arr,int l,int r,int i){
+	if(l==r){
+		return arr[l];
+	}
+	if(l<r){
+		int q=rpartition(arr,l,r);
+		int k=q-l+1;
+		if(i==k){
+			return arr[q];
+		}
+		else if(i<k){
+			return qsort_rec(arr,l,q-1,i);
+		}
+		else{
+			return qsort_rec(arr,q+1,r,i-k);
+		}
+	}
+}
+
+int qsort(vector<int>& arr,int i){
+	qsort_rec(arr,0,arr.size()-1,i);
+}
+
+int main(){
+	vector<int> arr;
+	arr.push_back(50);
+	arr.push_back(40);
+	arr.push_back(30);
+	arr.push_back(10);
+	arr.push_back(20);
+	cout<<qsort(arr,1)<<endl;
+	cout<<qsort(arr,2)<<endl;
+	cout<<qsort(arr,3)<<endl;
+	cout<<qsort(arr,4)<<endl;
+	cout<<qsort(arr,5)<<endl;
+	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
 // .\codes\array\kadane.cpp
 
 // Dynamic programming ( largest sum contiguous subarray / maximum subarray problem )
@@ -95,6 +169,67 @@ int main(){
 	int N=7;
 	kadane(arr,N);
 	kadane_empty_set_not_allowed(arr,N);
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\array\minimum_maximum.cpp
+
+//minimum and maximum position in an array
+//with minimum number of comparisons
+
+#include<iostream>
+#include<vector>
+#include<set>
+#include<algorithm>
+
+using namespace std;
+
+typedef pair<int,int> pii;
+
+template<class T>
+pii minAndMax(vector<T> arr){
+	int minpos=0,maxpos=0;
+	for(int i=0;i<arr.size()-1;i+=2){
+		int tminpos=i;
+		int tmaxpos=i+1;
+		if(arr[i]>arr[i+1]){
+			tminpos=i+1;
+			tmaxpos=i;
+		}
+		if(arr[tminpos]<arr[minpos]){
+			minpos=tminpos;
+		}
+		if(arr[tmaxpos]>arr[maxpos]){
+			maxpos=tmaxpos;
+		}
+	}
+	if(arr.size()&1){
+		if(arr[arr.size()-1]<arr[minpos]){
+			minpos=arr.size()-1;
+		}
+		if(arr[arr.size()-1]>arr[maxpos]){
+			maxpos=arr.size()-1;
+		}
+	}
+	return make_pair(minpos,maxpos);
+}
+
+
+int main(){
+	vector<int> arr;
+	arr.push_back(5);
+	arr.push_back(4);
+	arr.push_back(3);
+	arr.push_back(2);
+	arr.push_back(1);
+	pii ans=minAndMax(arr);
+	cout<<arr[ans.first]<<" "<<arr[ans.second]<<endl;
+	return 0;
 }
 
 // __________________________
@@ -2865,7 +3000,7 @@ int main(){
 
 // .\codes\graphs\single_source_shortest_path\bellman_ford.cpp
 
-// single sorurce shortest path(sssp) dijkstra
+// single sorurce shortest path(sssp) bellman ford
 
 #include<iostream>
 #include<vector>
@@ -3424,39 +3559,7 @@ int main(){
 
 // __________________________
 
-// .\codes\maths\all_factors.cpp
-
-// all factors / all divisors of a number
-//including 1
-
-#include<iostream>
-#include<vector>
-using namespace std;
-
-vector<int> factors(int x){
-	vector<int> result;
-	for(int i=1;i*i<=x;i++){
-		if(x%i==0){
-			result.push_back(i);
-			if(x/i!=i)	result.push_back(x/i);
-		}
-	}
-	return result;
-}
-
-int main(){
-	for(int x:factors(130)){
-		cout<<x<<" ";
-	}
-}
-
-// __________________________
-
-
-
-// __________________________
-
-// .\codes\maths\fibonacci(bad space complexity).cpp
+// .\codes\maths\fibonacci\fibonacci(bad space complexity).cpp
 
 // n-th fibonacci number
 
@@ -3501,7 +3604,7 @@ int main(){
 
 // __________________________
 
-// .\codes\maths\fibonacci.cpp
+// .\codes\maths\fibonacci\fibonacci.cpp
 
 // n-th fibonacci number
 
@@ -3561,7 +3664,7 @@ int main(){
 
 // __________________________
 
-// .\codes\maths\fibonacci_mod(bad space complexity).cpp
+// .\codes\maths\fibonacci\fibonacci_mod(bad space complexity).cpp
 
 // n-th fibonacci number
 
@@ -3606,7 +3709,7 @@ int main(){
 
 // __________________________
 
-// .\codes\maths\fibonacci_mod.cpp
+// .\codes\maths\fibonacci\fibonacci_mod.cpp
 
 // n-th fibonacci number
 
@@ -3666,7 +3769,43 @@ int main(){
 
 // __________________________
 
-// .\codes\maths\fibonacci_precompute.cpp
+// .\codes\maths\fibonacci\fibonacci_mod_precompute.cpp
+
+// precompute fibonacci numbers
+
+#include<iostream>
+#include<vector>
+using namespace std;
+
+#define ull unsigned long long
+
+#define FIBMAX 100005
+
+vector<int> fib;
+
+void pre_fib(int n,ull mod){
+	 fib.assign(n+1,0);
+	 fib[1]=1;
+	 for(int i=2;i<=n;i++){
+	 	fib[i]=(fib[i-1]+fib[i-2])%mod;
+	 }
+}
+
+int main(){
+	pre_fib(FIBMAX,100);
+	for(int i=0;i<100;i++){
+		cout<<fib[i]<<endl;
+	}
+	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\maths\fibonacci\fibonacci_precompute.cpp
 
 // precompute fibonacci numbers
 
@@ -3694,6 +3833,38 @@ int main(){
 		cout<<fib[i]<<endl;
 	}
 	return 0;
+}
+
+// __________________________
+
+
+
+// __________________________
+
+// .\codes\maths\all_factors.cpp
+
+// all factors / all divisors of a number
+//including 1
+
+#include<iostream>
+#include<vector>
+using namespace std;
+
+vector<int> factors(int x){
+	vector<int> result;
+	for(int i=1;i*i<=x;i++){
+		if(x%i==0){
+			result.push_back(i);
+			if(x/i!=i)	result.push_back(x/i);
+		}
+	}
+	return result;
+}
+
+int main(){
+	for(int x:factors(130)){
+		cout<<x<<" ";
+	}
 }
 
 // __________________________
@@ -4165,7 +4336,7 @@ void qsort_rec(vector<int>& arr,int l,int r){
 	if(l<r){
 		int q=partition(arr,l,r);
 		qsort_rec(arr,l,q-1);
-		qsort_rec(arr,q,r);
+		qsort_rec(arr,q+1,r);
 	}
 }
 
@@ -4288,7 +4459,7 @@ void qsort_rec(vector<int>& arr,int l,int r){
 	if(l<r){
 		int q=rpartition(arr,l,r);
 		qsort_rec(arr,l,q-1);
-		qsort_rec(arr,q,r);
+		qsort_rec(arr,q+1,r);
 	}
 }
 
