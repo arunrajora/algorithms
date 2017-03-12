@@ -1,5 +1,5 @@
 
-// single sorurce shortest path(sssp) dijkstra
+// single sorurce shortest path(sssp) bellman ford
 
 #include<iostream>
 #include<vector>
